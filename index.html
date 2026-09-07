@@ -165,7 +165,7 @@
 			<div class="topbar"><div class="crumb">MONDAY, 07 SEPTEMBER 2026 &nbsp;/&nbsp; LEVEL II</div><div class="top-actions"><button class="icon-button" aria-label="Notifications">♧</button><button class="new-button" onclick="document.querySelector('#library input').focus()">Find a resource <span>↗</span></button></div></div>
 			<section class="hero" id="overview">
 				<div class="hero-copy"><div class="eyebrow">Think in other terms</div><h1>Make space for better thinking.</h1><p class="intro">A focused home for your NUST journey. Pick up where you left off, see what is coming next, and keep the theory connected to the work you are building.</p></div>
-				<div class="hero-art"><div class="floating-note"><b>2 modules</b><small>in focus this semester</small></div></div>
+				<div class="hero-art"><div class="floating-note"><b id="focus-count">3 modules</b><small>in focus this semester</small></div></div>
 			</section>
 			<section id="modules"><div class="section-head"><div><div class="eyebrow">In focus / semester 1</div><h2>Current modules</h2></div><a href="#library">View module archive ↗</a></div><div class="modules">
 				<article class="module" data-module="sors2107"><div><div class="module-tag"><span>SORS2107</span><i>↗</i></div><h3>Applied Statistics for Computing</h3><p>Probability, distributions, inference and the stories data can tell.</p></div><div><div class="progress"><span></span></div><div class="module-foot"><span>Progress</span><span class="progress-value">0%</span></div></div></article>
@@ -212,6 +212,7 @@
 	    const moduleFormulas = document.querySelector('#module-formulas');
 	    const modulePicker = document.querySelector('#module-picker');
 	    const addModuleButton = document.querySelector('#add-module');
+	    const focusCount = document.querySelector('#focus-count');
 	    const moduleDetails = {
 	      sors2107: { code: 'SORS2107', title: 'Applied Statistics for Computing', description: 'Statistics gives computing students tools for describing data, modelling uncertainty and making evidence-based decisions.', topics: ['Probability', 'Distributions', 'Regression', 'Inference'], definitions: ['Mean: the arithmetic average, calculated by adding values and dividing by the number of values.', 'Standard deviation: a measure of how far values typically spread from the mean.', 'Correlation: a measure of the direction and strength of association between two variables.'], formulas: ['Mean = sum of observations / number of observations', 'Variance = sum of (x - mean)^2 / n', 'z = (x - mean) / standard deviation'] },
 	      scs2104: { code: 'SCS2104', title: 'Structured System Analysis & Design', description: 'This module turns a real-world problem into documented requirements, processes, data flows and a design that can be implemented.', topics: ['SDLC', 'SSADM', 'DFDs', 'Prototyping'], definitions: ['System: related components working together to achieve a purpose.', 'DFD: a diagram showing how data moves between processes, stores and external entities.', 'Data dictionary: a structured description of the data elements used by a system.'], formulas: ['Project progress = completed tasks / total tasks x 100', 'Risk exposure = probability of risk x impact of risk'] },
@@ -245,6 +246,7 @@
 	    };
 	    const renderAddedModules = () => {
 	      const added = getAddedModules();
+	      focusCount.textContent = `${3 + added.length} module${3 + added.length === 1 ? '' : 's'}`;
 	      added.forEach(addModuleRecord);
 	      document.querySelectorAll('#module-list .added-module').forEach(row => row.remove());
 	      added.forEach(moduleId => {
