@@ -2,6 +2,8 @@
 
 This folder contains the complete MyNUST student workplace with real server-side authentication.
 
+It also includes `MyNUST_Project_Speaker_Notes.docx`, a word-for-word presentation script for demonstrating the project.
+
 ## Run locally
 
 PowerShell:
