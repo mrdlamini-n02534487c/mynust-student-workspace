@@ -4,7 +4,7 @@ This folder contains the complete MyNUST student workplace for a NUST Zimbabwe L
 
 It also includes `MyNUST_Complete_Project_Documentation.docx`, `MyNUST_Project_Speaker_Notes.docx`, `MyNUST_Lecture_Notes.docx`, and `MyNUST_Project_Proposal.docx`. These documents cover the three current modules, all 16 academic foundations, algorithms, data structures, backend/API design, security, testing and limitations.
 
-The default student view focuses on the current modules: SORS2107, SCS2104 and SCS2114. The remaining 13 modules can be added from the module picker without changing another student's library.
+The project scope is your current academic level. The default student view focuses on SORS2107, SCS2104 and SCS2114, because these are the modules currently being studied. Earlier modules supply supporting knowledge: programming, operating systems, programming languages, databases, software engineering, discrete mathematics, ethics, algorithms and the mathematical foundations. The remaining 13 modules can be added from the module picker without changing another student's library.
 
 ## Progress calculation
 
