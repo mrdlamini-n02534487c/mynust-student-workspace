@@ -11,7 +11,7 @@
 		:root { --ink:#14231f; --muted:#66756e; --line:#dbe4dc; --paper:#f5f7f2; --card:#fff; --green:#0c7659; --lime:#c7ed72; --orange:#f08a4b; --cream:#fff9ee; --shadow:0 18px 50px rgba(20,35,31,.08); }
 		* { box-sizing:border-box; }
 		html { scroll-behavior:smooth; }
-		body { margin:0; background:var(--paper); color:var(--ink); font-family:Manrope, sans-serif; }
+		body { margin:0; background:var(--paper); color:var(--ink); font-family:Manrope, sans-serif; overflow-x:hidden; }
 		button, input { font:inherit; }
 		button { cursor:pointer; }
 		.auth-screen { min-height:100vh; display:grid; place-items:center; padding:24px; background:var(--ink); }
@@ -44,7 +44,7 @@
 		.progress-control { border-top:1px solid var(--line); padding-top:18px; }
 		.progress-control label { display:flex; justify-content:space-between; color:var(--muted); font:11px 'DM Mono', monospace; }
 		.progress-control input { width:100%; accent-color:var(--green); margin-top:12px; }
-		.shell { min-height:100vh; display:grid; grid-template-columns:248px 1fr; }
+		.shell { min-height:100vh; min-width:0; display:grid; grid-template-columns:248px 1fr; }
 		aside { background:var(--ink); color:#edf4e9; padding:28px 20px; display:flex; flex-direction:column; min-height:100vh; }
 		.brand { display:flex; align-items:center; gap:11px; padding:0 10px 42px; }
 		.brand-mark { width:38px; height:38px; object-fit:contain; display:block; }
@@ -81,6 +81,10 @@
 		.section-head { display:flex; justify-content:space-between; align-items:end; gap:20px; margin-bottom:17px; }
 		h2 { font-size:23px; letter-spacing:-.04em; margin:5px 0 0; }
 		.section-head a { color:var(--green); font-size:12px; font-weight:700; text-decoration:none; }
+		.library-tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+		.module-picker { border:1px solid var(--line); background:white; color:var(--ink); padding:9px 10px; font-size:11px; max-width:230px; }
+		.add-module { border:0; background:var(--green); color:white; padding:10px 12px; font-size:11px; font-weight:800; }
+		.add-module:disabled { opacity:.45; cursor:not-allowed; }
 		.modules { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:46px; }
 		.module { background:var(--card); border:1px solid var(--line); padding:20px; min-height:184px; display:flex; flex-direction:column; justify-content:space-between; transition:transform .2s, box-shadow .2s; }
 		.module, .list-row { cursor:pointer; }
@@ -122,8 +126,8 @@
 		.upcoming-item b { font-size:12px; display:block; }
 		.upcoming-item small { color:var(--muted); font-size:10px; display:block; margin-top:4px; }
 		.mobile-toggle { display:none; }
-		@media (max-width:900px) { .shell { grid-template-columns:1fr; } aside { min-height:auto; padding:16px 18px; flex-direction:row; align-items:center; gap:20px; } .brand { padding:0; } nav, .nav-label, .side-bottom { display:none; } .mobile-toggle { display:block; margin-left:auto; background:none; border:0; color:white; font-size:24px; } main { padding:28px 22px 45px; } .hero { grid-template-columns:1fr; } .hero-art { min-height:250px; } .modules { grid-template-columns:repeat(2,1fr); } .lower { grid-template-columns:1fr; } }
-		@media (max-width:560px) { .topbar { margin-bottom:20px; } .crumb { display:none; } .new-button { padding:10px 11px; } .hero-copy { padding:10px 0 4px; } h1 { font-size:39px; } .modules { grid-template-columns:1fr; } .list-row { grid-template-columns:70px 1fr; } .status { display:none; } .hero-art { min-height:210px; } }
+		@media (max-width:900px) { .shell { grid-template-columns:1fr; } aside { min-height:auto; padding:16px 18px; flex-direction:row; align-items:center; gap:20px; } .right-column { flex-direction:column; min-width:0; width:100%; } .brand { padding:0; } nav, .nav-label, .side-bottom { display:none; } .mobile-toggle { display:block; margin-left:auto; background:none; border:0; color:white; font-size:24px; } main { padding:28px 22px 45px; } .hero { grid-template-columns:1fr; } .hero-art { min-height:250px; } .modules { grid-template-columns:repeat(2,1fr); } .lower { grid-template-columns:1fr; min-width:0; } .panel { min-width:0; } }
+		@media (max-width:560px) { .topbar { margin-bottom:20px; } .crumb { display:none; } .new-button { padding:10px 11px; } .hero-copy { padding:10px 0 4px; } h1 { font-size:39px; } .modules { grid-template-columns:1fr; } .list-row { grid-template-columns:70px 1fr; } .status { display:none; } .hero-art { min-height:210px; } .section-head { align-items:flex-start; flex-direction:column; } .library-tools { width:100%; min-width:0; } .module-picker { flex:1; width:0; min-width:0; max-width:none; } }
 	</style>
 </head>
 <body>
@@ -169,7 +173,7 @@
 				<article class="module" data-module="scs2114"><div><div class="module-tag"><span>SCS2114</span><i>↗</i></div><h3>Web Development</h3><p>Design, code, connect: the studio where this digital campus takes shape.</p></div><div><div class="progress"><span style="background:var(--lime)"></span></div><div class="module-foot"><span>Progress</span><span class="progress-value">0%</span></div></div></article>
 			</div></section>
 			<div class="lower">
-				<section class="panel" id="library"><div class="section-head"><div><div class="eyebrow">Your knowledge base</div><h2>Module library</h2></div></div><div class="search"><span>⌕</span><input type="search" placeholder="Search modules, topics or codes..." aria-label="Search module library"></div><div class="module-list" id="module-list">
+				<section class="panel" id="library"><div class="section-head"><div><div class="eyebrow">Your knowledge base</div><h2>Module library</h2></div><div class="library-tools"><select class="module-picker" id="module-picker" aria-label="Choose a module to add"><option value="">Add a module...</option></select><button class="add-module" id="add-module" type="button" disabled>Add</button></div></div><div class="search"><span>⌕</span><input type="search" placeholder="Search your modules..." aria-label="Search module library"></div><div class="module-list" id="module-list">
 					<div class="list-row" data-module="sors2107" data-search="sors2107 applied statistics computing probability regression"><div class="list-code">SORS2107</div><div><div class="list-title">Applied Statistics for Computing</div><div class="list-sub">Probability · regression · inference</div></div><div class="status">OPEN ↗</div></div>
 					<div class="list-row" data-module="scs2104" data-search="scs2104 structured system analysis design ssadm data flow"><div class="list-code">SCS2104</div><div><div class="list-title">Structured System Analysis &amp; Design</div><div class="list-sub">SDLC · SSADM · data flow diagrams</div></div><div class="status">OPEN ↗</div></div>
 					<div class="list-row" data-module="scs2114" data-search="scs2114 web development html css javascript database"><div class="list-code">SCS2114</div><div><div class="list-title">Web Development</div><div class="list-sub">HTML · CSS · JavaScript · databases</div></div><div class="status">OPEN ↗</div></div>
@@ -206,15 +210,72 @@
 	    const topicChecklist = document.querySelector('#topic-checklist');
 	    const moduleDefinitions = document.querySelector('#module-definitions');
 	    const moduleFormulas = document.querySelector('#module-formulas');
+	    const modulePicker = document.querySelector('#module-picker');
+	    const addModuleButton = document.querySelector('#add-module');
 	    const moduleDetails = {
 	      sors2107: { code: 'SORS2107', title: 'Applied Statistics for Computing', description: 'Statistics gives computing students tools for describing data, modelling uncertainty and making evidence-based decisions.', topics: ['Probability', 'Distributions', 'Regression', 'Inference'], definitions: ['Mean: the arithmetic average, calculated by adding values and dividing by the number of values.', 'Standard deviation: a measure of how far values typically spread from the mean.', 'Correlation: a measure of the direction and strength of association between two variables.'], formulas: ['Mean = sum of observations / number of observations', 'Variance = sum of (x - mean)^2 / n', 'z = (x - mean) / standard deviation'] },
 	      scs2104: { code: 'SCS2104', title: 'Structured System Analysis & Design', description: 'This module turns a real-world problem into documented requirements, processes, data flows and a design that can be implemented.', topics: ['SDLC', 'SSADM', 'DFDs', 'Prototyping'], definitions: ['System: related components working together to achieve a purpose.', 'DFD: a diagram showing how data moves between processes, stores and external entities.', 'Data dictionary: a structured description of the data elements used by a system.'], formulas: ['Project progress = completed tasks / total tasks x 100', 'Risk exposure = probability of risk x impact of risk'] },
 	      scs2114: { code: 'SCS2114', title: 'Web Development', description: 'Web Development combines interface design, HTML, CSS, JavaScript, server routes and databases into working web applications.', topics: ['HTML', 'CSS', 'JavaScript', 'Databases'], definitions: ['HTML: the markup structure of a web page.', 'CSS: rules that control presentation, layout and responsive behaviour.', 'JavaScript: a programming language used to add behaviour and interaction in the browser.', 'HTTP: the request-response protocol used between a client and a server.'], formulas: ['Progress = topics x 0.25 + assignments x 0.20 + quizzes x 0.20 + attendance x 0.15 + exams x 0.20', 'Responsive width = available viewport width - page padding'] }
 	    };
+	    const availableModules = {
+	      sph1105: ['SPH1105', 'Electricity and Magnetism', 'Electric fields, circuits, magnetic fields and induction.', ['Electric fields', 'DC circuits', 'Magnetism', 'Induction']],
+	      sma1101: ['SMA1101', 'Calculus', 'Differentiation, integration, series, polar coordinates and complex numbers.', ['Differentiation', 'Integration', 'Series', 'Complex numbers']],
+	      sma1102: ['SMA1102', 'Linear Algebra', 'Vectors, matrices, determinants, systems and vector spaces.', ['Vectors', 'Matrices', 'Determinants', 'Vector spaces']],
+	      scs1101: ['SCS1101', 'Introduction to Computer Science and Programming', 'Programming, algorithms, data structures, operating systems, databases and networks.', ['Programming', 'Algorithms', 'Data structures', 'Databases']],
+	      scs1103: ['SCS1103', 'Operating Systems', 'Processes, scheduling, memory management, file systems, security and distributed systems.', ['Processes', 'Memory', 'File systems', 'Security']],
+	      scs1111: ['SCS1111', 'Principles of Programming Languages', 'Language design, compilers, abstraction, polymorphism and programming paradigms.', ['Compilers', 'Abstraction', 'Paradigms', 'Concurrency']],
+	      scs1112: ['SCS1112', 'Fundamentals of Digital Electronics', 'Number systems, logic circuits, memory, CPLDs and FPGAs.', ['Logic gates', 'Circuits', 'Memory', 'FPGAs']],
+	      scs1211: ['SCS1211', 'Computer Architecture and Organization', 'Assembly, instruction sets, memory, pipelines, caches and I/O.', ['Assembly', 'Memory', 'Pipelines', 'Caches']],
+	      scs1212: ['SCS1212', 'Data Structures and Algorithms', 'Lists, stacks, queues, trees, graphs, sorting, searching and complexity.', ['Graphs', 'Trees', 'Sorting', 'Complexity']],
+	      scs1213: ['SCS1213', 'Database Systems', 'Relational models, SQL, indexing, query processing and transactions.', ['Relational model', 'SQL', 'Indexing', 'Transactions']],
+	      scs1214: ['SCS1214', 'Software Engineering', 'Requirements, agile development, design, testing, maintenance and project management.', ['Requirements', 'Agile', 'Testing', 'Maintenance']],
+	      scs1210: ['SCS1210', 'Discrete Mathematics', 'Logic, proofs, sets, relations, graphs, counting and modelling computation.', ['Logic', 'Sets', 'Graphs', 'Counting']],
+	      scs1215: ['SCS1215', 'Ethics and Professionalism', 'Privacy, risk, intellectual property, law and professional responsibility.', ['Privacy', 'Risk', 'Intellectual property', 'Professionalism']]
+	    };
 	    let activeModule = null;
 	    const progressKey = () => `mynust-progress-${studentName.value.trim().toLowerCase()}`;
 	    const studyKey = () => `mynust-study-${studentName.value.trim().toLowerCase()}`;
 	    const getStudy = () => JSON.parse(localStorage.getItem(studyKey()) || '{}');
+	    const addedModulesKey = () => `mynust-added-modules-${studentName.value.trim().toLowerCase()}`;
+	    const getAddedModules = () => JSON.parse(localStorage.getItem(addedModulesKey()) || '[]');
+	    const saveAddedModules = modules => localStorage.setItem(addedModulesKey(), JSON.stringify(modules));
+	    const addModuleRecord = moduleId => {
+	      const [code, title, description, topics] = availableModules[moduleId];
+	      moduleDetails[moduleId] = { code, title, description, topics, definitions: [`${title}: a subject in the student's academic programme.`, `Key study areas: ${topics.join(', ')}.`], formulas: ['Use the definitions and worked examples from the official module material.'] };
+	    };
+	    const renderAddedModules = () => {
+	      const added = getAddedModules();
+	      added.forEach(addModuleRecord);
+	      document.querySelectorAll('#module-list .added-module').forEach(row => row.remove());
+	      added.forEach(moduleId => {
+	        const module = moduleDetails[moduleId];
+	        const row = document.createElement('div');
+	        row.className = 'list-row added-module';
+	        row.dataset.module = moduleId;
+	        row.dataset.search = `${module.code} ${module.title} ${module.topics.join(' ')}`.toLowerCase();
+	        row.innerHTML = `<div class="list-code">${module.code}</div><div><div class="list-title">${module.title}</div><div class="list-sub">${module.topics.join(' · ')}</div></div><div class="status">OPEN ↗</div>`;
+	        document.querySelector('#module-list').appendChild(row);
+	        bindModuleCard(row);
+      });
+      [...modulePicker.options].forEach(option => { if (added.includes(option.value)) option.remove(); });
+    };
+    const populateModulePicker = () => Object.entries(availableModules).forEach(([id, module]) => { const option = document.createElement('option'); option.value = id; option.textContent = `${module[0]} - ${module[1]}`; modulePicker.appendChild(option); });
+    const bindModuleCard = card => card.addEventListener('click', () => openModule(card.dataset.module));
+    populateModulePicker();
+    renderAddedModules();
+    modulePicker.addEventListener('change', () => { addModuleButton.disabled = !modulePicker.value; });
+    addModuleButton.addEventListener('click', () => {
+      const moduleId = modulePicker.value;
+      if (!moduleId) return;
+      const added = getAddedModules();
+      added.push(moduleId);
+      saveAddedModules(added);
+      addModuleRecord(moduleId);
+      renderAddedModules();
+      modulePicker.value = '';
+      addModuleButton.disabled = true;
+      openModule(moduleId);
+    });
 	    const calculateProgress = (moduleId) => {
 	      const module = moduleDetails[moduleId];
 	      const record = getStudy()[moduleId] || {};
@@ -299,6 +360,9 @@
 	    const openWorkspace = (name) => {
 	      studentName.value = name;
 	      updateStudentIdentity();
+	      modulePicker.innerHTML = '<option value="">Add a module...</option>';
+	      populateModulePicker();
+	      renderAddedModules();
 	      renderProgress();
 	      authScreen.hidden = true;
 	      workspace.hidden = false;
