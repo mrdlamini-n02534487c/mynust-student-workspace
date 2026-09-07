@@ -2,7 +2,7 @@
 
 This folder contains the complete MyNUST student workplace with real server-side authentication.
 
-It also includes `MyNUST_Project_Speaker_Notes.docx`, a word-for-word presentation script for demonstrating the project.
+It also includes `MyNUST_Project_Speaker_Notes.docx`, `MyNUST_Lecture_Notes.docx`, and `MyNUST_Project_Proposal.docx`. These documents cover the project presentation, proposal, all 16 modules, algorithms, data structures, security, testing and limitations.
 
 ## Progress calculation
 
