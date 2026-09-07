@@ -194,6 +194,25 @@
 	      authError.textContent = '';
 	    };
 	    authToggle.addEventListener('click', () => setAuthMode(authMode === 'login' ? 'register' : 'login'));
+	    const isGitHubPages = window.location.hostname.endsWith('github.io');
+	    const hashPassword = async (password) => {
+	      const bytes = new TextEncoder().encode(password);
+	      const digest = await crypto.subtle.digest('SHA-256', bytes);
+	      return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
+	    };
+	    const staticAuthentication = async (name, password) => {
+	      const account = JSON.parse(localStorage.getItem('mynust-pages-account') || 'null');
+	      const passwordHash = await hashPassword(password);
+	      if (authMode === 'register') {
+	        if (account) throw new Error('An account already exists in this browser. Sign in instead.');
+	        localStorage.setItem('mynust-pages-account', JSON.stringify({ name, passwordHash }));
+	        return { name };
+	      }
+	      if (!account || account.name.toLowerCase() !== name.toLowerCase() || account.passwordHash !== passwordHash) {
+	        throw new Error('The name or password is incorrect.');
+	      }
+	      return { name: account.name };
+	    };
 	    authForm.addEventListener('submit', (event) => {
 	      event.preventDefault();
 	      const name = document.querySelector('#login-name').value.trim();
@@ -204,13 +223,16 @@
 	      }
 	      authSubmit.disabled = true;
 	      authError.textContent = '';
-	      fetch(`/api/${authMode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ name, password }) })
-	        .then(async response => { const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Authentication failed.'); return data; })
+	      const request = isGitHubPages
+	        ? staticAuthentication(name, password)
+	        : fetch(`/api/${authMode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ name, password }) })
+	          .then(async response => { const contentType = response.headers.get('content-type') || ''; if (!contentType.includes('application/json')) throw new Error('The authentication server is unavailable.'); const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Authentication failed.'); return data; });
+      request
 	        .then(data => openWorkspace(data.name))
 	        .catch(error => { authError.textContent = error.message; })
 	        .finally(() => { authSubmit.disabled = false; });
 	    });
-	    fetch('/api/session', { credentials: 'include' }).then(response => response.ok ? response.json() : null).then(data => { if (data && data.authenticated) openWorkspace(data.name); });
+	    if (!isGitHubPages) fetch('/api/session', { credentials: 'include' }).then(response => response.ok ? response.json() : null).then(data => { if (data && data.authenticated) openWorkspace(data.name); });
 		const rows = [...document.querySelectorAll('.list-row')];
 		search.addEventListener('input', () => {
 			const query = search.value.toLowerCase().trim();
