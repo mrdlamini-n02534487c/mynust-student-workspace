@@ -27,6 +27,19 @@
 		.auth-submit:hover { background:#095c46; }
 		.auth-error { min-height:16px; color:#b64b2d; font-size:11px; margin:10px 0 0; }
 		.auth-toggle { border:0; background:transparent; color:var(--green); font-size:11px; font-weight:800; padding:10px 0 0; }
+		.modal-backdrop { position:fixed; inset:0; z-index:10; display:grid; place-items:center; padding:20px; background:rgba(20,35,31,.68); }
+		.modal-backdrop[hidden] { display:none; }
+		.module-modal { width:min(100%, 560px); background:var(--cream); padding:28px; box-shadow:var(--shadow); }
+		.modal-top { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; }
+		.modal-close { border:0; background:transparent; color:var(--muted); font-size:24px; line-height:1; }
+		.modal-code { color:var(--green); font:11px 'DM Mono', monospace; letter-spacing:.12em; }
+		.module-modal h2 { font-size:30px; margin:8px 0 10px; }
+		.modal-description { color:var(--muted); font-size:13px; line-height:1.7; }
+		.modal-topics { display:flex; flex-wrap:wrap; gap:7px; margin:20px 0; }
+		.modal-topics span { color:var(--green); background:#e7f4de; padding:7px 9px; font:10px 'DM Mono', monospace; }
+		.progress-control { border-top:1px solid var(--line); padding-top:18px; }
+		.progress-control label { display:flex; justify-content:space-between; color:var(--muted); font:11px 'DM Mono', monospace; }
+		.progress-control input { width:100%; accent-color:var(--green); margin-top:12px; }
 		.shell { min-height:100vh; display:grid; grid-template-columns:248px 1fr; }
 		aside { background:var(--ink); color:#edf4e9; padding:28px 20px; display:flex; flex-direction:column; min-height:100vh; }
 		.brand { display:flex; align-items:center; gap:11px; padding:0 10px 42px; }
@@ -66,6 +79,7 @@
 		.section-head a { color:var(--green); font-size:12px; font-weight:700; text-decoration:none; }
 		.modules { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:46px; }
 		.module { background:var(--card); border:1px solid var(--line); padding:20px; min-height:184px; display:flex; flex-direction:column; justify-content:space-between; transition:transform .2s, box-shadow .2s; }
+		.module, .list-row { cursor:pointer; }
 		.module:hover { transform:translateY(-4px); box-shadow:var(--shadow); }
 		.module-tag { display:flex; justify-content:space-between; align-items:center; color:var(--green); font:11px 'DM Mono',monospace; }
 		.module-tag i { color:var(--orange); font-size:18px; font-style:normal; }
@@ -137,21 +151,22 @@
 				<div class="hero-art"><div class="floating-note"><b>2 modules</b><small>in focus this semester</small></div></div>
 			</section>
 			<section id="modules"><div class="section-head"><div><div class="eyebrow">In focus / semester 1</div><h2>Current modules</h2></div><a href="#library">View module archive ↗</a></div><div class="modules">
-				<article class="module"><div><div class="module-tag"><span>SORS2107</span><i>↗</i></div><h3>Applied Statistics for Computing</h3><p>Probability, distributions, inference and the stories data can tell.</p></div><div><div class="progress"><span style="width:58%"></span></div><div class="module-foot"><span>Progress</span><span>58%</span></div></div></article>
-				<article class="module"><div><div class="module-tag"><span>SCS2104</span><i>↗</i></div><h3>Structured System Analysis &amp; Design</h3><p>From requirements and DFDs to a system people can actually use.</p></div><div><div class="progress"><span style="width:41%"></span></div><div class="module-foot"><span>Progress</span><span>41%</span></div></div></article>
-				<article class="module"><div><div class="module-tag"><span>SCS2114</span><i>↗</i></div><h3>Web Development</h3><p>Design, code, connect: the studio where this digital campus takes shape.</p></div><div><div class="progress"><span style="width:72%;background:var(--lime)"></span></div><div class="module-foot"><span>Progress</span><span>72%</span></div></div></article>
+				<article class="module" data-module="sors2107"><div><div class="module-tag"><span>SORS2107</span><i>↗</i></div><h3>Applied Statistics for Computing</h3><p>Probability, distributions, inference and the stories data can tell.</p></div><div><div class="progress"><span></span></div><div class="module-foot"><span>Progress</span><span class="progress-value">0%</span></div></div></article>
+				<article class="module" data-module="scs2104"><div><div class="module-tag"><span>SCS2104</span><i>↗</i></div><h3>Structured System Analysis &amp; Design</h3><p>From requirements and DFDs to a system people can actually use.</p></div><div><div class="progress"><span></span></div><div class="module-foot"><span>Progress</span><span class="progress-value">0%</span></div></div></article>
+				<article class="module" data-module="scs2114"><div><div class="module-tag"><span>SCS2114</span><i>↗</i></div><h3>Web Development</h3><p>Design, code, connect: the studio where this digital campus takes shape.</p></div><div><div class="progress"><span style="background:var(--lime)"></span></div><div class="module-foot"><span>Progress</span><span class="progress-value">0%</span></div></div></article>
 			</div></section>
 			<div class="lower">
 				<section class="panel" id="library"><div class="section-head"><div><div class="eyebrow">Your knowledge base</div><h2>Module library</h2></div></div><div class="search"><span>⌕</span><input type="search" placeholder="Search modules, topics or codes..." aria-label="Search module library"></div><div class="module-list" id="module-list">
-					<div class="list-row" data-search="sors2107 applied statistics computing probability regression"><div class="list-code">SORS2107</div><div><div class="list-title">Applied Statistics for Computing</div><div class="list-sub">Probability · regression · inference</div></div><div class="status">CURRENT</div></div>
-					<div class="list-row" data-search="scs2104 structured system analysis design ssadm data flow"><div class="list-code">SCS2104</div><div><div class="list-title">Structured System Analysis &amp; Design</div><div class="list-sub">SDLC · SSADM · data flow diagrams</div></div><div class="status">CURRENT</div></div>
-					<div class="list-row" data-search="scs2114 web development html css javascript database"><div class="list-code">SCS2114</div><div><div class="list-title">Web Development</div><div class="list-sub">HTML · CSS · JavaScript · databases</div></div><div class="status">CURRENT</div></div>
-					<div class="list-row" data-search="scs1212 data structures algorithms graphs trees sorting"><div class="list-code">SCS1212</div><div><div class="list-title">Data Structures &amp; Algorithms</div><div class="list-sub">Graphs · trees · complexity · problem solving</div></div><div class="status" style="color:#68756e;background:#eef1ed">COMPLETED</div></div>
+					<div class="list-row" data-module="sors2107" data-search="sors2107 applied statistics computing probability regression"><div class="list-code">SORS2107</div><div><div class="list-title">Applied Statistics for Computing</div><div class="list-sub">Probability · regression · inference</div></div><div class="status">OPEN ↗</div></div>
+					<div class="list-row" data-module="scs2104" data-search="scs2104 structured system analysis design ssadm data flow"><div class="list-code">SCS2104</div><div><div class="list-title">Structured System Analysis &amp; Design</div><div class="list-sub">SDLC · SSADM · data flow diagrams</div></div><div class="status">OPEN ↗</div></div>
+					<div class="list-row" data-module="scs2114" data-search="scs2114 web development html css javascript database"><div class="list-code">SCS2114</div><div><div class="list-title">Web Development</div><div class="list-sub">HTML · CSS · JavaScript · databases</div></div><div class="status">OPEN ↗</div></div>
+					<div class="list-row" data-module="scs1212" data-search="scs1212 data structures algorithms graphs trees sorting"><div class="list-code">SCS1212</div><div><div class="list-title">Data Structures &amp; Algorithms</div><div class="list-sub">Graphs · trees · complexity · problem solving</div></div><div class="status">OPEN ↗</div></div>
 				</div></section>
 				<aside class="right-column" id="calendar"><div class="stat-card"><div class="eyebrow" style="color:var(--lime)">Degree pulse</div><div class="big">09 / 17</div><p>modules mapped across your journey</p></div><div class="panel upcoming"><div class="eyebrow">Coming up</div><h2>Keep moving</h2><div class="upcoming-item"><div class="date">12<br>SEP</div><div><b>Web prototype review</b><small>SCS2114 · Studio submission</small></div></div><div class="upcoming-item"><div class="date">18<br>SEP</div><div><b>Statistics problem set</b><small>SORS2107 · Probability</small></div></div><div class="upcoming-item"><div class="date">25<br>SEP</div><div><b>Analysis case study</b><small>SCS2104 · Requirements</small></div></div></div></aside>
 			</div>
 		</main>
 	</div>
+	<div class="modal-backdrop" id="module-modal" hidden><section class="module-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-top"><div><div class="modal-code" id="modal-code"></div><h2 id="modal-title"></h2></div><button class="modal-close" id="modal-close" aria-label="Close module">×</button></div><p class="modal-description" id="modal-description"></p><div class="modal-topics" id="modal-topics"></div><div class="progress-control"><label for="module-progress"><span>Your progress</span><strong id="modal-progress-value">0%</strong></label><input id="module-progress" type="range" min="0" max="100" step="1" value="0"></div></section></div>
 	<script>
 		const authScreen = document.querySelector('#auth-screen');
 		const workspace = document.querySelector('#workspace');
@@ -168,6 +183,51 @@
 	    const studentName = document.querySelector('#student-name');
 	    const avatar = document.querySelector('#avatar');
 	    const workspaceLabel = document.querySelector('#workspace-label');
+	    const moduleModal = document.querySelector('#module-modal');
+	    const moduleProgress = document.querySelector('#module-progress');
+	    const moduleProgressValue = document.querySelector('#modal-progress-value');
+	    const moduleDetails = {
+	      sors2107: { code: 'SORS2107', title: 'Applied Statistics for Computing', description: 'Probability, distributions, measures of central tendency, sampling, regression, correlation and statistical inference for computing.', topics: ['Probability', 'Distributions', 'Regression', 'Inference'] },
+	      scs2104: { code: 'SCS2104', title: 'Structured System Analysis & Design', description: 'Systems development life cycle, SSADM, data-flow diagrams, data dictionaries, database definitions, prototyping and project documentation.', topics: ['SDLC', 'SSADM', 'DFDs', 'Prototyping'] },
+	      scs2114: { code: 'SCS2114', title: 'Web Development', description: 'HTML, CSS and JavaScript brought together with responsive design, dynamic pages, database connections and the practical site development process.', topics: ['HTML', 'CSS', 'JavaScript', 'Databases'] },
+	      scs1212: { code: 'SCS1212', title: 'Data Structures & Algorithms', description: 'Pointers, linked lists, queues, stacks, trees, graphs, sorting, searching, hashing, complexity and algorithm design.', topics: ['Graphs', 'Trees', 'Sorting', 'Complexity'] }
+	    };
+	    let activeModule = null;
+	    const progressKey = () => `mynust-progress-${studentName.value.trim().toLowerCase()}`;
+	    const getProgress = () => JSON.parse(localStorage.getItem(progressKey()) || '{}');
+	    const renderProgress = () => {
+	      const progress = getProgress();
+	      document.querySelectorAll('[data-module]').forEach(card => {
+	        const value = Number(progress[card.dataset.module] || 0);
+	        const bar = card.querySelector('.progress span');
+	        const label = card.querySelector('.progress-value');
+	        if (bar) bar.style.width = `${value}%`;
+	        if (label) label.textContent = `${value}%`;
+	      });
+	    };
+	    const openModule = (moduleId) => {
+	      const module = moduleDetails[moduleId];
+	      if (!module) return;
+	      activeModule = moduleId;
+	      document.querySelector('#modal-code').textContent = module.code;
+	      document.querySelector('#modal-title').textContent = module.title;
+	      document.querySelector('#modal-description').textContent = module.description;
+	      document.querySelector('#modal-topics').innerHTML = module.topics.map(topic => `<span>${topic}</span>`).join('');
+	      moduleProgress.value = getProgress()[moduleId] || 0;
+	      moduleProgressValue.textContent = `${moduleProgress.value}%`;
+	      moduleModal.hidden = false;
+	    };
+	    const closeModule = () => { moduleModal.hidden = true; activeModule = null; };
+	    document.querySelectorAll('[data-module]').forEach(card => card.addEventListener('click', () => openModule(card.dataset.module)));
+	    moduleProgress.addEventListener('input', () => {
+	      const progress = getProgress();
+	      progress[activeModule] = Number(moduleProgress.value);
+	      localStorage.setItem(progressKey(), JSON.stringify(progress));
+	      moduleProgressValue.textContent = `${moduleProgress.value}%`;
+	      renderProgress();
+	    });
+	    document.querySelector('#modal-close').addEventListener('click', closeModule);
+	    moduleModal.addEventListener('click', event => { if (event.target === moduleModal) closeModule(); });
 	    const updateStudentIdentity = () => {
 	      const name = studentName.value.trim() || 'Your Name';
 	      avatar.textContent = name.charAt(0).toUpperCase();
@@ -178,6 +238,7 @@
 	    const openWorkspace = (name) => {
 	      studentName.value = name;
 	      updateStudentIdentity();
+	      renderProgress();
 	      authScreen.hidden = true;
 	      workspace.hidden = false;
 	    };
