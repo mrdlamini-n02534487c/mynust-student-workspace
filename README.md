@@ -1,8 +1,10 @@
 # MyNUST web development project
 
-This folder contains the complete MyNUST student workplace with real server-side authentication.
+This folder contains the complete MyNUST student workplace for a NUST Zimbabwe Level II Computer Science student.
 
-It also includes `MyNUST_Project_Speaker_Notes.docx`, `MyNUST_Lecture_Notes.docx`, and `MyNUST_Project_Proposal.docx`. These documents cover the project presentation, proposal, all 16 modules, algorithms, data structures, security, testing and limitations.
+It also includes `MyNUST_Complete_Project_Documentation.docx`, `MyNUST_Project_Speaker_Notes.docx`, `MyNUST_Lecture_Notes.docx`, and `MyNUST_Project_Proposal.docx`. These documents cover the three current modules, all 16 academic foundations, algorithms, data structures, backend/API design, security, testing and limitations.
+
+The default student view focuses on the current modules: SORS2107, SCS2104 and SCS2114. The remaining 13 modules can be added from the module picker without changing another student's library.
 
 ## Progress calculation
 
@@ -23,6 +25,8 @@ python app.py
 
 Open http://127.0.0.1:5000/.
 
-The first user can create an account from the sign-in screen. Passwords are hashed with Werkzeug and are never stored as plain text. Sessions are stored in an HTTP-only cookie and the account records are stored in `mynust.db`, which is created on first run.
+The first user can create an account from the sign-in screen. Passwords are hashed with Werkzeug and are never stored as plain text. Sessions are stored in an HTTP-only cookie. Account records and per-user study records are stored in `mynust.db`, which is created on first run.
+
+Backend API routes include `/api/register`, `/api/login`, `/api/session`, `/api/logout`, `/api/modules`, `/api/study-records` (GET) and `/api/study-records` (POST).
 
 For production deployment, set a strong `MYNUST_SECRET_KEY`, enable HTTPS, set `MYNUST_COOKIE_SECURE=1`, and use a managed database with backups. GitHub Pages can host the static frontend but cannot run this Flask backend, so the authenticated version must be deployed to a Python-capable host such as Render, Railway, or a VPS.

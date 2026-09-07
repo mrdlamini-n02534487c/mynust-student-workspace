@@ -237,6 +237,10 @@
 	    const progressKey = () => `mynust-progress-${studentName.value.trim().toLowerCase()}`;
 	    const studyKey = () => `mynust-study-${studentName.value.trim().toLowerCase()}`;
 	    const getStudy = () => JSON.parse(localStorage.getItem(studyKey()) || '{}');
+	    const syncStudyRecord = (moduleId, record) => {
+	      if (isGitHubPages || !moduleId) return;
+	      fetch('/api/study-records', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ module_code: moduleDetails[moduleId]?.code || moduleId, completed_topics: record.completed || [], assignments_submitted: record.assignments || 0, quiz_average: record.quiz || 0, attendance: record.attendance || 0, exam_mark: record.exam || 0, notes: record.notes || '' }) }).catch(() => {});
+	    };
 	    const addedModulesKey = () => `mynust-added-modules-${studentName.value.trim().toLowerCase()}`;
 	    const getAddedModules = () => JSON.parse(localStorage.getItem(addedModulesKey()) || '[]');
 	    const saveAddedModules = modules => localStorage.setItem(addedModulesKey(), JSON.stringify(modules));
@@ -318,6 +322,7 @@
 	        const selected = [...topicChecklist.querySelectorAll('input:checked')].map(item => Number(item.dataset.topicIndex));
 	        current[moduleId] = { ...current[moduleId], completed: selected, notes: moduleNotes.value };
 	        localStorage.setItem(studyKey(), JSON.stringify(current));
+	        syncStudyRecord(moduleId, current[moduleId]);
 	        updateCalculatedProgress(moduleId);
 	      }));
 	      updateCalculatedProgress(moduleId);
@@ -341,6 +346,7 @@
 	      current.exam = Math.max(0, Math.min(100, Number(examScore.value) || 0));
 	      study[activeModule] = current;
 	      localStorage.setItem(studyKey(), JSON.stringify(study));
+	      syncStudyRecord(activeModule, current);
 	      updateCalculatedProgress(activeModule);
 	    };
 	    [assignmentsSubmitted, quizScore, attendanceScore, examScore].forEach(input => input.addEventListener('input', saveMetrics));
@@ -349,6 +355,7 @@
 	      const study = getStudy();
 	      study[activeModule] = { completed: [...topicChecklist.querySelectorAll('input:checked')].map(item => Number(item.dataset.topicIndex)), notes: moduleNotes.value };
 	      localStorage.setItem(studyKey(), JSON.stringify(study));
+	      syncStudyRecord(activeModule, study[activeModule]);
 	    });
 	    document.querySelector('#modal-close').addEventListener('click', closeModule);
 	    moduleModal.addEventListener('click', event => { if (event.target === moduleModal) closeModule(); });
