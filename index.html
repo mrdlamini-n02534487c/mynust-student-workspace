@@ -26,6 +26,7 @@
 		.auth-submit { width:100%; border:0; background:var(--green); color:white; padding:13px; margin-top:22px; font-weight:800; }
 		.auth-submit:hover { background:#095c46; }
 		.auth-error { min-height:16px; color:#b64b2d; font-size:11px; margin:10px 0 0; }
+		.auth-toggle { border:0; background:transparent; color:var(--green); font-size:11px; font-weight:800; padding:10px 0 0; }
 		.shell { min-height:100vh; display:grid; grid-template-columns:248px 1fr; }
 		aside { background:var(--ink); color:#edf4e9; padding:28px 20px; display:flex; flex-direction:column; min-height:100vh; }
 		.brand { display:flex; align-items:center; gap:11px; padding:0 10px 42px; }
@@ -103,14 +104,17 @@
 		<form class="auth-card" id="auth-form">
 			<img class="auth-mark" src="nust-logo.png" alt="National University of Science and Technology crest">
 			<div class="eyebrow">MyNUST / student workplace</div>
-			<h1>Welcome.</h1>
-			<p class="auth-copy">Enter your details to open your personal academic workspace.</p>
+			<h1 id="auth-title">Welcome.</h1>
+			<p class="auth-copy" id="auth-copy">Enter your details to open your personal academic workspace.</p>
 			<label class="auth-field" for="login-name">Your name</label>
 			<input class="auth-input" id="login-name" type="text" autocomplete="name" placeholder="e.g. Mthokozisi Dlamini" required>
 			<label class="auth-field" for="login-password">Password</label>
-			<input class="auth-input" id="login-password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+			<input class="auth-input" id="login-password" type="password" autocomplete="current-password" placeholder="At least 8 characters" minlength="8" required>
+			<label class="auth-field" id="confirm-label" for="confirm-password" hidden>Confirm password</label>
+			<input class="auth-input" id="confirm-password" type="password" autocomplete="new-password" placeholder="Repeat your password" minlength="8" hidden>
 			<p class="auth-error" id="auth-error" role="alert"></p>
-			<button class="auth-submit" type="submit">Enter MyNUST <span>↗</span></button>
+			<button class="auth-submit" id="auth-submit" type="submit">Enter MyNUST <span>↗</span></button>
+			<button class="auth-toggle" id="auth-toggle" type="button">Need an account? Create one</button>
 		</form>
 	</div>
 	<div class="shell" id="workspace" hidden>
@@ -153,41 +157,60 @@
 		const workspace = document.querySelector('#workspace');
 		const authForm = document.querySelector('#auth-form');
 		const authError = document.querySelector('#auth-error');
+		const authTitle = document.querySelector('#auth-title');
+		const authCopy = document.querySelector('#auth-copy');
+		const authSubmit = document.querySelector('#auth-submit');
+		const authToggle = document.querySelector('#auth-toggle');
+		const confirmLabel = document.querySelector('#confirm-label');
+		const confirmPassword = document.querySelector('#confirm-password');
+		let authMode = 'login';
 	    const search = document.querySelector('.search input');
 	    const studentName = document.querySelector('#student-name');
 	    const avatar = document.querySelector('#avatar');
 	    const workspaceLabel = document.querySelector('#workspace-label');
-	    const savedName = localStorage.getItem('mynust-student-name');
-	    if (savedName) studentName.value = savedName;
 	    const updateStudentIdentity = () => {
 	      const name = studentName.value.trim() || 'Your Name';
 	      avatar.textContent = name.charAt(0).toUpperCase();
 	      workspaceLabel.textContent = name === 'Your Name' ? 'student workspace' : `${name}'s workspace`;
-	      localStorage.setItem('mynust-student-name', name);
 	    };
 	    studentName.addEventListener('input', updateStudentIdentity);
 	    updateStudentIdentity();
 	    const openWorkspace = (name) => {
 	      studentName.value = name;
 	      updateStudentIdentity();
-	      sessionStorage.setItem('mynust-authenticated', 'true');
 	      authScreen.hidden = true;
 	      workspace.hidden = false;
 	    };
-	    if (sessionStorage.getItem('mynust-authenticated') === 'true' && savedName) {
-	      openWorkspace(savedName);
-	    }
+	    const setAuthMode = (mode) => {
+	      authMode = mode;
+	      const registering = mode === 'register';
+	      authTitle.textContent = registering ? 'Create your space.' : 'Welcome.';
+	      authCopy.textContent = registering ? 'Create a secure account for your personal academic workspace.' : 'Enter your details to open your personal academic workspace.';
+	      authSubmit.innerHTML = registering ? 'Create account <span>↗</span>' : 'Enter MyNUST <span>↗</span>';
+	      authToggle.textContent = registering ? 'Already have an account? Sign in' : 'Need an account? Create one';
+	      confirmLabel.hidden = !registering;
+	      confirmPassword.hidden = !registering;
+	      confirmPassword.required = registering;
+	      authError.textContent = '';
+	    };
+	    authToggle.addEventListener('click', () => setAuthMode(authMode === 'login' ? 'register' : 'login'));
 	    authForm.addEventListener('submit', (event) => {
 	      event.preventDefault();
 	      const name = document.querySelector('#login-name').value.trim();
 	      const password = document.querySelector('#login-password').value;
-	      if (!name || !password) {
-	        authError.textContent = 'Enter both your name and password to continue.';
+	      if (authMode === 'register' && password !== confirmPassword.value) {
+	        authError.textContent = 'The passwords do not match.';
 	        return;
 	      }
+	      authSubmit.disabled = true;
 	      authError.textContent = '';
-	      openWorkspace(name);
+	      fetch(`/api/${authMode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ name, password }) })
+	        .then(async response => { const data = await response.json(); if (!response.ok) throw new Error(data.error || 'Authentication failed.'); return data; })
+	        .then(data => openWorkspace(data.name))
+	        .catch(error => { authError.textContent = error.message; })
+	        .finally(() => { authSubmit.disabled = false; });
 	    });
+	    fetch('/api/session', { credentials: 'include' }).then(response => response.ok ? response.json() : null).then(data => { if (data && data.authenticated) openWorkspace(data.name); });
 		const rows = [...document.querySelectorAll('.list-row')];
 		search.addEventListener('input', () => {
 			const query = search.value.toLowerCase().trim();

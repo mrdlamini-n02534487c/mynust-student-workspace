@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: mynust-student-workspace
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT app:app
+    envVars:
+      - key: MYNUST_SECRET_KEY
+        generateValue: true
+      - key: MYNUST_COOKIE_SECURE
+        value: "1"
