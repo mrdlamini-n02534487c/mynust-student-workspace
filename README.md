@@ -4,6 +4,10 @@ This folder contains the complete MyNUST student workplace with real server-side
 
 It also includes `MyNUST_Project_Speaker_Notes.docx`, a word-for-word presentation script for demonstrating the project.
 
+## Progress calculation
+
+Module progress is calculated per student using: completed topics (25%), submitted assignments (20%), quiz average (20%), attendance (15%), and exam mark (20%). The module panel shows the evidence fields and recalculates the result immediately.
+
 ## Run locally
 
 PowerShell:

@@ -86,6 +86,9 @@
 				.topic-check { display:flex; gap:9px; align-items:flex-start; color:var(--muted); font-size:12px; line-height:1.4; padding:7px 0; }
 				.topic-check input { accent-color:var(--green); margin-top:2px; }
 				.study-notes { width:100%; min-height:74px; border:1px solid var(--line); padding:10px; resize:vertical; color:var(--ink); background:white; font-size:12px; }
+				.metric-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+				.metric-grid label { color:var(--muted); font:10px 'DM Mono', monospace; }
+				.metric-input { display:block; width:100%; margin-top:6px; padding:9px; border:1px solid var(--line); color:var(--ink); background:white; }
 		.module:hover { transform:translateY(-4px); box-shadow:var(--shadow); }
 		.module-tag { display:flex; justify-content:space-between; align-items:center; color:var(--green); font:11px 'DM Mono',monospace; }
 		.module-tag i { color:var(--orange); font-size:18px; font-style:normal; }
@@ -172,7 +175,7 @@
 			</div>
 		</main>
 	</div>
-	<div class="modal-backdrop" id="module-modal" hidden><section class="module-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-top"><div><div class="modal-code" id="modal-code"></div><h2 id="modal-title"></h2></div><button class="modal-close" id="modal-close" aria-label="Close module">×</button></div><p class="modal-description" id="modal-description"></p><div class="modal-topics" id="modal-topics"></div><div class="study-block"><h3>Study checklist</h3><div id="topic-checklist"></div></div><div class="study-block"><h3>Private notes</h3><textarea class="study-notes" id="module-notes" placeholder="Write a question, example or next step..."></textarea></div><div class="progress-control"><label for="module-progress"><span>Your progress</span><strong id="modal-progress-value">0%</strong></label><input id="module-progress" type="range" min="0" max="100" step="1" value="0"></div></section></div>
+	<div class="modal-backdrop" id="module-modal" hidden><section class="module-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-top"><div><div class="modal-code" id="modal-code"></div><h2 id="modal-title"></h2></div><button class="modal-close" id="modal-close" aria-label="Close module">×</button></div><p class="modal-description" id="modal-description"></p><div class="modal-topics" id="modal-topics"></div><div class="study-block"><h3>Study checklist</h3><div id="topic-checklist"></div></div><div class="study-block"><h3>Academic evidence</h3><p class="modal-description">Progress is calculated from these records: topics 25%, assignments 20%, quizzes 20%, attendance 15% and exams 20%.</p><div class="metric-grid"><label>Assignments submitted / 10<input class="metric-input" id="assignments-submitted" type="number" min="0" max="10" value="0"></label><label>Quiz average (%)<input class="metric-input" id="quiz-score" type="number" min="0" max="100" value="0"></label><label>Attendance (%)<input class="metric-input" id="attendance-score" type="number" min="0" max="100" value="0"></label><label>Exam mark (%)<input class="metric-input" id="exam-score" type="number" min="0" max="100" value="0"></label></div></div><div class="study-block"><h3>Private notes</h3><textarea class="study-notes" id="module-notes" placeholder="Write a question, example or next step..."></textarea></div><div class="progress-control"><label><span>Calculated progress</span><strong id="modal-progress-value">0%</strong></label><div class="progress"><span id="calculated-progress-bar"></span></div></div></section></div>
 	<script>
 		const authScreen = document.querySelector('#auth-screen');
 		const workspace = document.querySelector('#workspace');
@@ -190,8 +193,12 @@
 	    const avatar = document.querySelector('#avatar');
 	    const workspaceLabel = document.querySelector('#workspace-label');
 	    const moduleModal = document.querySelector('#module-modal');
-	    const moduleProgress = document.querySelector('#module-progress');
 	    const moduleProgressValue = document.querySelector('#modal-progress-value');
+	    const calculatedProgressBar = document.querySelector('#calculated-progress-bar');
+	    const assignmentsSubmitted = document.querySelector('#assignments-submitted');
+	    const quizScore = document.querySelector('#quiz-score');
+	    const attendanceScore = document.querySelector('#attendance-score');
+	    const examScore = document.querySelector('#exam-score');
 	    const moduleNotes = document.querySelector('#module-notes');
 	    const topicChecklist = document.querySelector('#topic-checklist');
 	    const moduleDetails = {
@@ -202,13 +209,18 @@
 	    };
 	    let activeModule = null;
 	    const progressKey = () => `mynust-progress-${studentName.value.trim().toLowerCase()}`;
-	    const getProgress = () => JSON.parse(localStorage.getItem(progressKey()) || '{}');
 	    const studyKey = () => `mynust-study-${studentName.value.trim().toLowerCase()}`;
 	    const getStudy = () => JSON.parse(localStorage.getItem(studyKey()) || '{}');
+	    const calculateProgress = (moduleId) => {
+	      const module = moduleDetails[moduleId];
+	      const record = getStudy()[moduleId] || {};
+	      const topics = ((record.completed || []).length / module.topics.length) * 100;
+	      const assignments = (Number(record.assignments || 0) / 10) * 100;
+	      return Math.round((topics * .25) + (assignments * .20) + (Number(record.quiz || 0) * .20) + (Number(record.attendance || 0) * .15) + (Number(record.exam || 0) * .20));
+	    };
 	    const renderProgress = () => {
-	      const progress = getProgress();
 	      document.querySelectorAll('[data-module]').forEach(card => {
-	        const value = Number(progress[card.dataset.module] || 0);
+	        const value = calculateProgress(card.dataset.module);
 	        const bar = card.querySelector('.progress span');
 	        const label = card.querySelector('.progress-value');
 	        if (bar) bar.style.width = `${value}%`;
@@ -224,28 +236,45 @@
 	      document.querySelector('#modal-description').textContent = module.description;
 	      document.querySelector('#modal-topics').innerHTML = module.topics.map(topic => `<span>${topic}</span>`).join('');
 	      const study = getStudy();
-	      const completed = study[moduleId]?.completed || [];
+	      const record = study[moduleId] || {};
+	      const completed = record.completed || [];
 	      topicChecklist.innerHTML = module.topics.map((topic, index) => `<label class="topic-check"><input type="checkbox" data-topic-index="${index}" ${completed.includes(index) ? 'checked' : ''}> <span>${topic}</span></label>`).join('');
-	      moduleNotes.value = study[moduleId]?.notes || '';
+	      moduleNotes.value = record.notes || '';
+	      assignmentsSubmitted.value = record.assignments || 0;
+	      quizScore.value = record.quiz || 0;
+	      attendanceScore.value = record.attendance || 0;
+	      examScore.value = record.exam || 0;
 	      topicChecklist.querySelectorAll('input').forEach(input => input.addEventListener('change', () => {
 	        const current = getStudy();
 	        const selected = [...topicChecklist.querySelectorAll('input:checked')].map(item => Number(item.dataset.topicIndex));
-	        current[moduleId] = { completed: selected, notes: moduleNotes.value };
+	        current[moduleId] = { ...current[moduleId], completed: selected, notes: moduleNotes.value };
 	        localStorage.setItem(studyKey(), JSON.stringify(current));
+	        updateCalculatedProgress(moduleId);
 	      }));
-	      moduleProgress.value = getProgress()[moduleId] || 0;
-	      moduleProgressValue.textContent = `${moduleProgress.value}%`;
+	      updateCalculatedProgress(moduleId);
 	      moduleModal.hidden = false;
+	    };
+	    const updateCalculatedProgress = (moduleId) => {
+	      const value = calculateProgress(moduleId);
+	      moduleProgressValue.textContent = `${value}%`;
+	      calculatedProgressBar.style.width = `${value}%`;
+	      renderProgress();
 	    };
 	    const closeModule = () => { moduleModal.hidden = true; activeModule = null; };
 	    document.querySelectorAll('[data-module]').forEach(card => card.addEventListener('click', () => openModule(card.dataset.module)));
-	    moduleProgress.addEventListener('input', () => {
-	      const progress = getProgress();
-	      progress[activeModule] = Number(moduleProgress.value);
-	      localStorage.setItem(progressKey(), JSON.stringify(progress));
-	      moduleProgressValue.textContent = `${moduleProgress.value}%`;
-	      renderProgress();
-	    });
+	    const saveMetrics = () => {
+	      if (!activeModule) return;
+	      const study = getStudy();
+	      const current = study[activeModule] || { completed: [], notes: '' };
+	      current.assignments = Math.max(0, Math.min(10, Number(assignmentsSubmitted.value) || 0));
+	      current.quiz = Math.max(0, Math.min(100, Number(quizScore.value) || 0));
+	      current.attendance = Math.max(0, Math.min(100, Number(attendanceScore.value) || 0));
+	      current.exam = Math.max(0, Math.min(100, Number(examScore.value) || 0));
+	      study[activeModule] = current;
+	      localStorage.setItem(studyKey(), JSON.stringify(study));
+	      updateCalculatedProgress(activeModule);
+	    };
+	    [assignmentsSubmitted, quizScore, attendanceScore, examScore].forEach(input => input.addEventListener('input', saveMetrics));
 	    moduleNotes.addEventListener('input', () => {
 	      if (!activeModule) return;
 	      const study = getStudy();
